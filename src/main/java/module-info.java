@@ -7,4 +7,6 @@ open module ConnTest
 
     requires org.slf4j;
     requires org.slf4j.simple;
+    requires java.desktop;
+    requires javafx.swing;
 }

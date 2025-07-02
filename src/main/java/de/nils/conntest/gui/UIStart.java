@@ -2,12 +2,14 @@ package de.nils.conntest.gui;
 
 import de.nils.conntest.common.Const;
 import javafx.application.Platform;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.awt.*;
 import java.io.IOException;
 
 public class UIStart
@@ -35,6 +37,8 @@ public class UIStart
             GuiResources.INSTANCE.loadImage(GuiResources.logo);
 
             stage.getIcons().add(GuiResources.INSTANCE.getImage(GuiResources.logo));
+            addAppToTray();
+
             stage.setResizable(true);
             stage.show();
         }
@@ -44,6 +48,33 @@ public class UIStart
 
             // Try to stop all FX threads
             Platform.runLater(Platform::exit);
+        }
+    }
+
+    private void addAppToTray()
+    {
+        try
+        {
+            Toolkit.getDefaultToolkit();
+
+            if(SystemTray.isSupported())
+            {
+                SystemTray tray = SystemTray.getSystemTray();
+
+                TrayIcon trayIcon = new TrayIcon(SwingFXUtils.fromFXImage(GuiResources.INSTANCE.getImage(GuiResources.logo), null));
+                trayIcon.setToolTip("ConnTest");
+                trayIcon.setImageAutoSize(true);
+
+                tray.add(trayIcon);
+            }
+            else
+            {
+                log.info("SystemTray is not supported");
+            }
+        }
+        catch(AWTException e)
+        {
+            log.error("Failed to add tray icon", e);
         }
     }
 }

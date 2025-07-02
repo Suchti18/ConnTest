@@ -39,6 +39,11 @@ public class UIStart
             stage.getIcons().add(GuiResources.INSTANCE.getImage(GuiResources.logo));
             addAppToTray();
 
+            stage.setOnCloseRequest(event ->
+            {
+                System.exit(0);
+            });
+
             stage.setResizable(true);
             stage.show();
         }

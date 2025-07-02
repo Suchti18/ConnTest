@@ -1,3 +1,9 @@
+<div align="center">
+
+[![ConnTest](./.github/ConnTestLogo.svg)](#ConnTest)
+
+</div>
+
 # ConnTest
 
 **ConnTest** is a lightweight tool for testing and analyzing network communication. It can operate as a **client** or **server**, and displays all incoming and outgoing messages in a simple text-based chat interface.

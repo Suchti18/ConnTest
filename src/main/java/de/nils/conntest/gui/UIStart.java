@@ -31,6 +31,10 @@ public class UIStart
 
             stage.setScene(scene);
             stage.setTitle("ConnTest");
+
+            GuiResources.INSTANCE.loadImage(GuiResources.logo);
+
+            stage.getIcons().add(GuiResources.INSTANCE.getImage(GuiResources.logo));
             stage.setResizable(true);
             stage.show();
         }

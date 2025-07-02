@@ -1,4 +1,13 @@
 package de.nils.conntest.model.communication;
 
-public class Connection {
+import java.net.Socket;
+
+public class Connection
+{
+    private final Socket socket;
+
+    public Connection(Socket socket)
+    {
+        this.socket = socket;
+    }
 }

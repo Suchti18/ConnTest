@@ -60,6 +60,7 @@ public class UIStart
     {
         try
         {
+            // ensure awt toolkit is initialized.
             Toolkit.getDefaultToolkit();
 
             if(SystemTray.isSupported())

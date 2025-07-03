@@ -3,9 +3,9 @@ package de.nils.conntest.model.event;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.PriorityBlockingQueue;
 
 public class EventQueue
@@ -24,7 +24,7 @@ public class EventQueue
     private EventQueue()
     {
         events = new PriorityBlockingQueue<>();
-        listeners = new ArrayList<>();
+        listeners = new CopyOnWriteArrayList<>();
     }
 
     public void addEvent(Event event)

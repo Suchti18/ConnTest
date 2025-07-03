@@ -39,10 +39,7 @@ public class UIStart
             stage.getIcons().add(GuiResources.INSTANCE.getImage(GuiResources.logo));
             addAppToTray();
 
-            stage.setOnCloseRequest(event ->
-            {
-                System.exit(0);
-            });
+            Platform.setImplicitExit(false);
 
             stage.setResizable(true);
             stage.show();
@@ -67,9 +64,30 @@ public class UIStart
             {
                 SystemTray tray = SystemTray.getSystemTray();
 
+                PopupMenu popupMenu = new PopupMenu();
+                MenuItem exitItem = new MenuItem("Exit");
+                exitItem.addActionListener(event ->
+                {
+                    System.exit(0);
+                });
+
+                MenuItem showItem = new MenuItem("Show");
+                showItem.addActionListener(event ->
+                {
+                    System.out.println("Show gui");
+                });
+
+                popupMenu.add(showItem);
+                popupMenu.add(exitItem);
+
                 TrayIcon trayIcon = new TrayIcon(SwingFXUtils.fromFXImage(GuiResources.INSTANCE.getImage(GuiResources.logo), null));
                 trayIcon.setToolTip("ConnTest");
                 trayIcon.setImageAutoSize(true);
+                trayIcon.setPopupMenu(popupMenu);
+                trayIcon.addActionListener(event ->
+                {
+                    System.out.println("Tray icon clicked");
+                });
 
                 tray.add(trayIcon);
             }

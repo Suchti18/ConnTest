@@ -25,7 +25,7 @@ public class Server
             while(!serverSocket.isClosed())
             {
                 Socket newSocket = serverSocket.accept();
-                new Connection(newSocket);
+                new Connection(newSocket).sendMessage(new Message(MessageType.SENT, "Hi", 1));
             }
         }
         catch (IOException e)

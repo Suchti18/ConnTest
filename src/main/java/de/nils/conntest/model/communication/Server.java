@@ -22,15 +22,31 @@ public class Server
     {
         try
         {
+            log.info("Server started on port {}", serverSocket.getLocalPort());
+
             while(!serverSocket.isClosed())
             {
                 Socket newSocket = serverSocket.accept();
-                new Connection(newSocket).sendMessage(new Message(MessageType.SENT, "Hi", 1));
+
+                log.info("New connection from {}", newSocket.getRemoteSocketAddress());
+
+                new Connection(newSocket);
             }
         }
         catch (IOException e)
         {
             log.error("Error accepting connection", e);
+        }
+    }
+
+    public void stop()
+    {
+        try(serverSocket)
+        {
+        }
+        catch (IOException e)
+        {
+            log.error("Error while stopping server", e);
         }
     }
 }

@@ -1,15 +1,24 @@
 package de.nils.conntest.gui;
 
+import de.nils.conntest.common.Const;
+import de.nils.conntest.model.event.Event;
+import de.nils.conntest.model.event.EventQueue;
+import de.nils.conntest.model.event.EventType;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URL;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 public class MainController implements Initializable
 {
+    private static final Logger log = LoggerFactory.getLogger(MainController.class);
+
     @FXML
     private BorderPane clientBorderPaneBtn;
     @FXML
@@ -61,6 +70,15 @@ public class MainController implements Initializable
     @FXML
     public void doConnect()
     {
-        System.out.println(serverPort.getText());
+        try
+        {
+            int port = Integer.parseInt(serverPort.getText());
+
+            EventQueue.getInstance().addEvent(new Event(EventType.START_SERVER, System.currentTimeMillis(), Map.of(Const.Event.SERVER_PORT_KEY, port)));
+        }
+        catch(NumberFormatException e)
+        {
+            log.error("User entered a not numeric port");
+        }
     }
 }

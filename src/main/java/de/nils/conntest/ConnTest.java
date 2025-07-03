@@ -16,19 +16,8 @@ public class ConnTest
     {
         Thread.setDefaultUncaughtExceptionHandler(new UncaughtHandler());
 
-        EventQueue.getInstance().addListener(new Model());
-        EventQueue.getInstance().addEvent(new Event("Test", System.currentTimeMillis(), Map.of()));
-
+        new Model();
         new UIStart();
-        try
-        {
-            new Server(8080).start();
-        }
-        catch(IOException e)
-        {
-            e.printStackTrace();
-        }
-
 
         EventQueue.getInstance().startEventQueue();
     }

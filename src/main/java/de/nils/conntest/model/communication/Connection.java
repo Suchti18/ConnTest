@@ -1,10 +1,15 @@
 package de.nils.conntest.model.communication;
 
+import de.nils.conntest.common.Const;
+import de.nils.conntest.model.event.Event;
+import de.nils.conntest.model.event.EventQueue;
+import de.nils.conntest.model.event.EventType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.Map;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
 
@@ -46,10 +51,17 @@ public class Connection
                     break;
                 }
 
+                String message = new String(buf, 0, read);
+
                 log.atTrace()
                     .setMessage("received <{}>")
-                    .addArgument(() -> new String(buf, 0, read))
+                    .addArgument(() -> message)
                     .log();
+
+                EventQueue.getInstance().addEvent(
+                        new Event(EventType.CONNECTION_RECEIVED_MESSAGE,
+                                System.currentTimeMillis(),
+                                Map.of(Const.Event.MESSAGE_KEY, message)));
             }
         }
         catch (IOException e)

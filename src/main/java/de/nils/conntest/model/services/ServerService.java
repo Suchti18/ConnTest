@@ -4,6 +4,8 @@ import de.nils.conntest.common.Const;
 import de.nils.conntest.model.communication.Server;
 import de.nils.conntest.model.event.Event;
 import de.nils.conntest.model.event.EventListener;
+import de.nils.conntest.model.event.EventQueue;
+import de.nils.conntest.model.event.EventType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,11 +20,18 @@ public class ServerService implements EventListener
 
     public void startServer(int port)
     {
+        if(serverThread != null && serverThread.isAlive())
+        {
+            return;
+        }
+
         try
         {
             server = new Server(port);
             serverThread = new Thread(server::start);
             serverThread.start();
+
+            EventQueue.getInstance().addEvent(new Event(EventType.SERVER_STARTED, System.currentTimeMillis(), null));
         }
         catch (IOException e)
         {
@@ -32,7 +41,23 @@ public class ServerService implements EventListener
 
     public void stopServer()
     {
+        server.stop();
+        serverThread.interrupt();
+        try
+        {
+            serverThread.join();
 
+            EventQueue.getInstance().addEvent(new Event(EventType.SERVER_STOPPED, System.currentTimeMillis(), null));
+        }
+        catch (InterruptedException e)
+        {
+            log.error("Error while stopping server", e);
+        }
+    }
+
+    public boolean isServerRunning()
+    {
+        return serverThread != null && serverThread.isAlive();
     }
 
     @Override

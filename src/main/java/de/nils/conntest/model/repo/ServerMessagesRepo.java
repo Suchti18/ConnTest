@@ -2,7 +2,7 @@ package de.nils.conntest.model.repo;
 
 import de.nils.conntest.model.communication.Message;
 
-public class ServerMessagesRepo extends RepoBase<Integer, Message>
+public class ServerMessagesRepo extends RepoBase<Long, Message>
 {
     public ServerMessagesRepo()
     {
@@ -10,8 +10,8 @@ public class ServerMessagesRepo extends RepoBase<Integer, Message>
     }
 
     @Override
-    public Integer extractKey(Message dao)
+    public Long extractKey(Message dao)
     {
-        return dao.id();
+        return dao.time();
     }
 }

@@ -1,6 +1,7 @@
 package de.nils.conntest.gui;
 
 import de.nils.conntest.common.Const;
+import de.nils.conntest.gui.Components.MessageCell;
 import de.nils.conntest.gui.Components.MessageDialog;
 import de.nils.conntest.model.communication.Message;
 import de.nils.conntest.model.event.Event;
@@ -12,10 +13,12 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
+import javafx.util.Callback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +44,7 @@ public class MainController implements Initializable, EventListener
     @FXML
     private Button serverMessageBtn;
     @FXML
-    private ListView<String> serverMessages;
+    private ListView<Message> serverMessages;
 
     // Content Panes
     @FXML
@@ -69,6 +72,15 @@ public class MainController implements Initializable, EventListener
     @Override
     public void initialize(URL location, ResourceBundle resources)
     {
+        serverMessages.setCellFactory(new Callback<ListView<Message>, ListCell<Message>>()
+        {
+            @Override
+            public ListCell<Message> call(ListView<Message> param)
+            {
+                return new MessageCell();
+            }
+        });
+
         doSelectServer();
     }
 
@@ -139,7 +151,7 @@ public class MainController implements Initializable, EventListener
         if(message.isPresent())
         {
             EventQueue.getInstance().addEvent(
-                    new Event(EventType.SENT_SERVER_MESSAGE,
+                    new Event(EventType.SERVER_MESSAGE_SENT,
                             System.currentTimeMillis(),
                             Map.of(Const.Event.MESSAGE_KEY, message.get())));
         }
@@ -157,6 +169,7 @@ public class MainController implements Initializable, EventListener
                     serverPort.setDisable(true);
                     serverStarted = true;
                     serverStartBtn.setText("Stop");
+                    serverMessageBtn.setDisable(false);
                 });
             }
             case SERVER_STOPPED ->
@@ -166,6 +179,7 @@ public class MainController implements Initializable, EventListener
                     serverPort.setDisable(false);
                     serverStarted = false;
                     serverStartBtn.setText("Start");
+                    serverMessageBtn.setDisable(true);
                 });
             }
             case SERVER_MESSAGE_RECEIVED ->
@@ -178,7 +192,7 @@ public class MainController implements Initializable, EventListener
                 Platform.runLater(() ->
                 {
                     serverMessages.getItems().clear();
-                    serverMessages.getItems().addAll(messages.stream().map(Message::message).toArray(String[]::new));
+                    serverMessages.getItems().addAll(messages);
                 });
             }
         }

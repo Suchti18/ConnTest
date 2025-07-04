@@ -31,6 +31,8 @@ public class Connection
 
         new Thread(this::reader).start();
         new Thread(this::writer).start();
+
+        EventQueue.getInstance().addEvent(new Event(EventType.CONNECTION_ESTABLISHED,  System.currentTimeMillis(), Map.of(Const.Event.CONNECTION_KEY, this)));
     }
 
     public void reader()
@@ -102,6 +104,8 @@ public class Connection
         {
             log.error("Error while stopping socket", e);
         }
+
+        EventQueue.getInstance().addEvent(new Event(EventType.CONNECTION_LOST,  System.currentTimeMillis(), Map.of(Const.Event.CONNECTION_KEY, this)));
     }
 
     public void sendMessage(Message message)

@@ -18,7 +18,7 @@ public class Model
 
     public Model()
     {
-        serverService = new ServerService();
+        serverService = new ServerService(this);
         clientService = new ClientService();
         connectionService = new ConnectionService(this);
 

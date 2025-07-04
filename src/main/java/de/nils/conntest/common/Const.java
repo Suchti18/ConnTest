@@ -15,5 +15,7 @@ public class Const
 
         public static final String MESSAGE_KEY = "Message";
         public static final String ALL_MESSAGES_KEY = "AllMessages";
+
+        public static final String CONNECTION_KEY = "NewConnection";
     }
 }

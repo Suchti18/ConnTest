@@ -9,8 +9,6 @@ public class ServerServiceTest
     @Test
     void test_serverStart()
     {
-        ServerService serverService = new ServerService();
-
-        assertFalse(serverService.startServer());
+        fail("Not yet implemented");
     }
 }

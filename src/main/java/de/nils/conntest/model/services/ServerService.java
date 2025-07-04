@@ -1,6 +1,9 @@
 package de.nils.conntest.model.services;
 
 import de.nils.conntest.common.Const;
+import de.nils.conntest.model.Model;
+import de.nils.conntest.model.communication.Message;
+import de.nils.conntest.model.communication.MessageType;
 import de.nils.conntest.model.communication.Server;
 import de.nils.conntest.model.event.Event;
 import de.nils.conntest.model.event.EventListener;
@@ -15,8 +18,14 @@ public class ServerService implements EventListener
 {
     private static final Logger log = LoggerFactory.getLogger(ServerService.class);
 
+    private Model model;
     private Thread serverThread;
     private Server server;
+
+    public ServerService(Model model)
+    {
+        this.model = model;
+    }
 
     public void startServer(int port)
     {
@@ -74,6 +83,12 @@ public class ServerService implements EventListener
             case STOP_SERVER ->
             {
                 stopServer();
+            }
+            case SERVER_MESSAGE_SENT ->
+            {
+                event.mustExist(Const.Event.MESSAGE_KEY);
+
+                model.getConnectionService().sendServerMessage(new Message(MessageType.SENT, event.getData(Const.Event.MESSAGE_KEY), System.currentTimeMillis()));
             }
         }
     }

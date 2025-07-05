@@ -15,7 +15,6 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
-import javafx.util.Callback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -86,14 +85,7 @@ public class MainController implements Initializable, EventListener
     @Override
     public void initialize(URL location, ResourceBundle resources)
     {
-        serverMessages.setCellFactory(new Callback<ListView<Message>, ListCell<Message>>()
-        {
-            @Override
-            public ListCell<Message> call(ListView<Message> param)
-            {
-                return new MessageCell();
-            }
-        });
+        serverMessages.setCellFactory(param -> new MessageCell());
 
         doSelectServer();
     }
@@ -164,13 +156,11 @@ public class MainController implements Initializable, EventListener
         MessageDialog messageDialog = new MessageDialog();
         Optional<String> message = messageDialog.showAndWait();
 
-        if(message.isPresent())
-        {
-            EventQueue.getInstance().addEvent(
+        message.ifPresent(s ->
+                EventQueue.getInstance().addEvent(
                     new Event(EventType.SERVER_MESSAGE_SENT,
-                            System.currentTimeMillis(),
-                            Map.of(Const.Event.MESSAGE_KEY, message.get())));
-        }
+                        System.currentTimeMillis(),
+                        Map.of(Const.Event.MESSAGE_KEY, s))));
     }
 
     @FXML
@@ -211,13 +201,11 @@ public class MainController implements Initializable, EventListener
         MessageDialog messageDialog = new MessageDialog();
         Optional<String> message = messageDialog.showAndWait();
 
-        if(message.isPresent())
-        {
-            EventQueue.getInstance().addEvent(
+        message.ifPresent(s ->
+                EventQueue.getInstance().addEvent(
                     new Event(EventType.CLIENT_MESSAGE_SENT,
-                            System.currentTimeMillis(),
-                            Map.of(Const.Event.MESSAGE_KEY, message.get())));
-        }
+                        System.currentTimeMillis(),
+                        Map.of(Const.Event.MESSAGE_KEY, s))));
     }
 
     @Override

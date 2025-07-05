@@ -16,6 +16,8 @@ public class UIStart
 {
     private static final Logger log = LoggerFactory.getLogger(UIStart.class);
 
+    private Stage stage;
+
     public UIStart()
     {
         Platform.startup(this::startup);
@@ -25,7 +27,7 @@ public class UIStart
     {
         try
         {
-            Stage stage = new Stage();
+            stage = new Stage();
 
             FXMLLoader loader = new FXMLLoader(this.getClass().getResource(Const.GUI.FXML_FILE_PATH));
             loader.setController(new MainController());
@@ -53,6 +55,14 @@ public class UIStart
         }
     }
 
+    private void showStage()
+    {
+        if(stage != null)
+        {
+            Platform.runLater(stage::show);
+        }
+    }
+
     private void addAppToTray()
     {
         try
@@ -74,7 +84,8 @@ public class UIStart
                 MenuItem showItem = new MenuItem("Show");
                 showItem.addActionListener(event ->
                 {
-                    System.out.println("Show gui");
+                    log.debug("Show button in tray menu clicked");
+                    showStage();
                 });
 
                 popupMenu.add(showItem);
@@ -86,7 +97,8 @@ public class UIStart
                 trayIcon.setPopupMenu(popupMenu);
                 trayIcon.addActionListener(event ->
                 {
-                    System.out.println("Tray icon clicked");
+                    log.debug("Tray icon double clicked");
+                    showStage();
                 });
 
                 tray.add(trayIcon);

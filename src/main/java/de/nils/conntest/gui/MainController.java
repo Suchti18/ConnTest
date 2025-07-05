@@ -86,6 +86,7 @@ public class MainController implements Initializable, EventListener
     public void initialize(URL location, ResourceBundle resources)
     {
         serverMessages.setCellFactory(param -> new MessageCell());
+        clientMessages.setCellFactory(param -> new MessageCell());
 
         doSelectServer();
     }
@@ -254,7 +255,7 @@ public class MainController implements Initializable, EventListener
                     clientPort.setDisable(true);
                     clientConnected = true;
                     clientConnectBtn.setText("Disconnect");
-                    serverMessageBtn.setDisable(false);
+                    clientMessageBtn.setDisable(false);
                 });
             }
             case CLIENT_STOPPED ->
@@ -265,7 +266,7 @@ public class MainController implements Initializable, EventListener
                     clientPort.setDisable(false);
                     clientConnected = false;
                     clientConnectBtn.setText("Connect");
-                    serverMessageBtn.setDisable(true);
+                    clientMessageBtn.setDisable(true);
                 });
             }
             case CLIENT_MESSAGE_RECEIVED ->
@@ -280,6 +281,9 @@ public class MainController implements Initializable, EventListener
                     clientMessages.getItems().clear();
                     clientMessages.getItems().addAll(messages);
                 });
+            }
+            default ->
+            {
             }
         }
     }

@@ -29,7 +29,7 @@ public class ServerService implements EventListener
 
     public void startServer(int port)
     {
-        if(serverThread != null && serverThread.isAlive())
+        if(serverThread != null && serverThread.isAlive() && !model.getClientService().isClientRunning())
         {
             return;
         }
@@ -50,18 +50,15 @@ public class ServerService implements EventListener
 
     public void stopServer()
     {
-        server.stop();
-        serverThread.interrupt();
-        try
-        {
-            serverThread.join();
-
+    	if(server != null && serverThread != null)
+    	{
+    		server.stop();
+            serverThread.interrupt();
             EventQueue.getInstance().addEvent(new Event(EventType.SERVER_STOPPED, System.currentTimeMillis(), null));
-        }
-        catch (InterruptedException e)
-        {
-            log.error("Error while stopping server", e);
-        }
+    	}
+        
+        server = null;
+        serverThread = null;
     }
 
     public boolean isServerRunning()
@@ -89,6 +86,9 @@ public class ServerService implements EventListener
                 event.mustExist(Const.Event.MESSAGE_KEY);
 
                 model.getConnectionService().sendServerMessage(new Message(MessageType.SENT, event.getData(Const.Event.MESSAGE_KEY), System.currentTimeMillis()));
+            }
+            default ->
+            {
             }
         }
     }

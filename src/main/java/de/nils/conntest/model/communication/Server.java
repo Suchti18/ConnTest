@@ -3,6 +3,10 @@ package de.nils.conntest.model.communication;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.nils.conntest.model.event.Event;
+import de.nils.conntest.model.event.EventQueue;
+import de.nils.conntest.model.event.EventType;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -20,7 +24,7 @@ public class Server
 
     public void start()
     {
-        try
+        try(serverSocket)
         {
             log.info("Server started on port {}", serverSocket.getLocalPort());
 
@@ -37,6 +41,8 @@ public class Server
         {
             log.error("Error accepting connection", e);
         }
+        
+        EventQueue.getInstance().addEvent(new Event(EventType.STOP_SERVER,  System.currentTimeMillis(), null));
     }
 
     public void stop()

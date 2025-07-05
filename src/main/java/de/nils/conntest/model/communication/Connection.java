@@ -69,6 +69,8 @@ public class Connection
         catch (IOException e)
         {
             log.error("Error while reading from socket", e);
+            
+            EventQueue.getInstance().addEvent(new Event(EventType.CONNECTION_LOST,  System.currentTimeMillis(), Map.of(Const.Event.CONNECTION_KEY, this)));
         }
     }
 
@@ -85,6 +87,11 @@ public class Connection
 
                 out.write(message.message());
                 out.flush();
+                
+                EventQueue.getInstance().addEvent(
+                        new Event(EventType.CONNECTION_SENT_MESSAGE,
+                                System.currentTimeMillis(),
+                                Map.of(Const.Event.MESSAGE_KEY, message)));
             }
         }
         catch (InterruptedException | IOException e)

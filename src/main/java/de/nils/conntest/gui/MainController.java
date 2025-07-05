@@ -12,10 +12,7 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.util.Callback;
@@ -33,6 +30,9 @@ public class MainController implements Initializable, EventListener
     private static final Logger log = LoggerFactory.getLogger(MainController.class);
 
     @FXML
+    private Label titleLabel;
+
+    @FXML
     private BorderPane clientBorderPaneBtn;
     @FXML
     private BorderPane serverBorderPaneBtn;
@@ -40,11 +40,24 @@ public class MainController implements Initializable, EventListener
     @FXML
     private TextField serverPort;
     @FXML
+    private TextField clientAddress;
+    @FXML
+    private TextField clientPort;
+
+    @FXML
     private Button serverStartBtn;
+    @FXML
+    private Button clientConnectBtn;
+
     @FXML
     private Button serverMessageBtn;
     @FXML
+    private Button clientMessageBtn;
+
+    @FXML
     private ListView<Message> serverMessages;
+    @FXML
+    private ListView<Message> clientMessages;
 
     // Content Panes
     @FXML
@@ -54,6 +67,7 @@ public class MainController implements Initializable, EventListener
 
     private BorderPane previousSelectedBtn;
     private boolean serverStarted = false;
+    private boolean clientConnected = false;
 
     public MainController()
     {
@@ -87,16 +101,16 @@ public class MainController implements Initializable, EventListener
     @FXML
     public void doSelectClient()
     {
-        select(clientBorderPaneBtn, clientPane);
+        select(clientBorderPaneBtn, clientPane, "Client");
     }
 
     @FXML
     public void doSelectServer()
     {
-        select(serverBorderPaneBtn, serverPane);
+        select(serverBorderPaneBtn, serverPane, "Server");
     }
 
-    public void select(BorderPane btn, AnchorPane contentPane)
+    public void select(BorderPane btn, AnchorPane contentPane, String title)
     {
         if(previousSelectedBtn != null)
         {
@@ -110,6 +124,8 @@ public class MainController implements Initializable, EventListener
         {
             node.setVisible(node == contentPane);
         }
+
+        titleLabel.setText(title);
     }
 
     @FXML
@@ -157,6 +173,53 @@ public class MainController implements Initializable, EventListener
         }
     }
 
+    @FXML
+    public void doStartClient()
+    {
+        if(clientConnected)
+        {
+            EventQueue.getInstance().addEvent(
+                    new Event(EventType.STOP_CLIENT,
+                            System.currentTimeMillis(),
+                            null));
+        }
+        else
+        {
+            try
+            {
+                int port = Integer.parseInt(clientPort.getText());
+                String address = clientAddress.getText();
+
+                EventQueue.getInstance().addEvent(
+                        new Event(EventType.START_CLIENT,
+                                System.currentTimeMillis(),
+                                Map.of(Const.Event.CLIENT_ADDRESS_KEY, address,
+                                        Const.Event.CLIENT_PORT_KEY, port)));
+            }
+            catch(Exception e)
+            {
+                log.error("User entered a not numeric port and tried to start a client", e);
+            }
+        }
+    }
+
+    @FXML
+    public void doSendClientMessage()
+    {
+        log.debug("New client message button clicked");
+
+        MessageDialog messageDialog = new MessageDialog();
+        Optional<String> message = messageDialog.showAndWait();
+
+        if(message.isPresent())
+        {
+            EventQueue.getInstance().addEvent(
+                    new Event(EventType.CLIENT_MESSAGE_SENT,
+                            System.currentTimeMillis(),
+                            Map.of(Const.Event.MESSAGE_KEY, message.get())));
+        }
+    }
+
     @Override
     public void handleEvent(Event event)
     {
@@ -193,6 +256,41 @@ public class MainController implements Initializable, EventListener
                 {
                     serverMessages.getItems().clear();
                     serverMessages.getItems().addAll(messages);
+                });
+            }
+            case CLIENT_STARTED ->
+            {
+                Platform.runLater(() ->
+                {
+                    clientAddress.setDisable(true);
+                    clientPort.setDisable(true);
+                    clientConnected = true;
+                    clientConnectBtn.setText("Disconnect");
+                    serverMessageBtn.setDisable(false);
+                });
+            }
+            case CLIENT_STOPPED ->
+            {
+                Platform.runLater(() ->
+                {
+                    clientAddress.setDisable(false);
+                    clientPort.setDisable(false);
+                    clientConnected = false;
+                    clientConnectBtn.setText("Connect");
+                    serverMessageBtn.setDisable(true);
+                });
+            }
+            case CLIENT_MESSAGE_RECEIVED ->
+            {
+                event.mustExist(Const.Event.ALL_MESSAGES_KEY);
+
+                PriorityQueue<Message> messages = new PriorityQueue<>();
+                messages.addAll(event.getData(Const.Event.ALL_MESSAGES_KEY));
+
+                Platform.runLater(() ->
+                {
+                    clientMessages.getItems().clear();
+                    clientMessages.getItems().addAll(messages);
                 });
             }
         }

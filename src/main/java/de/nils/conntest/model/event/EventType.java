@@ -3,7 +3,11 @@ package de.nils.conntest.model.event;
 public enum EventType
 {
     START_CLIENT,
+    CLIENT_STARTED,
     STOP_CLIENT,
+    CLIENT_STOPPED,
+    CLIENT_MESSAGE_RECEIVED,
+    CLIENT_MESSAGE_SENT,
     START_SERVER,
     SERVER_STARTED,
     STOP_SERVER,

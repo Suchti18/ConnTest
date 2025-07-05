@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Map;
 
 public class ServerService implements EventListener
 {
@@ -41,6 +42,10 @@ public class ServerService implements EventListener
             serverThread.start();
 
             EventQueue.getInstance().addEvent(new Event(EventType.SERVER_STARTED, System.currentTimeMillis(), null));
+            
+            model.getServerMessagesRepo().create(new Message(MessageType.INFORMATION, "Server started on port <" + port + ">", System.currentTimeMillis()));
+            
+            EventQueue.getInstance().addEvent(new Event(EventType.SERVER_MESSAGE_RECEIVED, System.currentTimeMillis(), Map.of(Const.Event.ALL_MESSAGES_KEY, model.getServerMessagesRepo().getAll())));
         }
         catch (IOException e)
         {
@@ -55,6 +60,10 @@ public class ServerService implements EventListener
     		server.stop();
             serverThread.interrupt();
             EventQueue.getInstance().addEvent(new Event(EventType.SERVER_STOPPED, System.currentTimeMillis(), null));
+            
+            model.getServerMessagesRepo().create(new Message(MessageType.INFORMATION, "Server stopped", System.currentTimeMillis()));
+            
+            EventQueue.getInstance().addEvent(new Event(EventType.SERVER_MESSAGE_RECEIVED, System.currentTimeMillis(), Map.of(Const.Event.ALL_MESSAGES_KEY, model.getServerMessagesRepo().getAll())));
     	}
         
         server = null;

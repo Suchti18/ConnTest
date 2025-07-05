@@ -124,4 +124,10 @@ public class Connection
     {
         return connected;
     }
+    
+    @Override
+    public String toString()
+    {
+    	return socket.getInetAddress().getHostAddress() + ":" + socket.getPort();
+    }
 }

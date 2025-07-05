@@ -52,7 +52,11 @@ public class ClientService implements EventListener
     {
     	if(clientSocket != null && clientConn != null)
         {
-	    	clientConn.stop();
+    		model.getClientMessagesRepo().create(new Message(MessageType.INFORMATION, "Disconnected from: <" + clientConn + ">", System.currentTimeMillis()));
+            
+            EventQueue.getInstance().addEvent(new Event(EventType.CLIENT_MESSAGE_RECEIVED, System.currentTimeMillis(), Map.of(Const.Event.ALL_MESSAGES_KEY, model.getClientMessagesRepo().getAll())));
+    		
+    		clientConn.stop();
         }
     	
     	clientSocket = null;

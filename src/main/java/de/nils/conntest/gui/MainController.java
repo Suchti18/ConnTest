@@ -244,7 +244,11 @@ public class MainController implements Initializable, EventListener
                 Platform.runLater(() ->
                 {
                     serverMessages.getItems().clear();
-                    serverMessages.getItems().addAll(messages);
+                    
+                    while(!messages.isEmpty())
+                    {
+                    	serverMessages.getItems().add(messages.poll());
+                    }
                 });
             }
             case CLIENT_STARTED ->
@@ -279,7 +283,11 @@ public class MainController implements Initializable, EventListener
                 Platform.runLater(() ->
                 {
                     clientMessages.getItems().clear();
-                    clientMessages.getItems().addAll(messages);
+                    
+                    while(!messages.isEmpty())
+                    {
+                    	clientMessages.getItems().add(messages.poll());
+                    }
                 });
             }
             default ->

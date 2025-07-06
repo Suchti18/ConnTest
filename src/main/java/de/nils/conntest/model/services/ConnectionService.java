@@ -37,6 +37,14 @@ public class ConnectionService implements EventListener
 
             connection.sendMessage(message);
         }
+
+        if(connectionList.isEmpty())
+        {
+            EventQueue.getInstance().addEvent(
+                    new Event(EventType.CONNECTION_SENT_MESSAGE,
+                            System.currentTimeMillis(),
+                            Map.of(Const.Event.MESSAGE_KEY, message)));
+        }
     }
     
     public void sendClientMessage(Message message)

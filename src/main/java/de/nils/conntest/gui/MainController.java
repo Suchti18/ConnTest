@@ -3,6 +3,7 @@ package de.nils.conntest.gui;
 import de.nils.conntest.common.Const;
 import de.nils.conntest.gui.Components.MessageCell;
 import de.nils.conntest.gui.Components.MessageDialog;
+import de.nils.conntest.gui.Components.NoSelectionModel;
 import de.nils.conntest.model.communication.Message;
 import de.nils.conntest.model.event.Event;
 import de.nils.conntest.model.event.EventListener;
@@ -87,6 +88,12 @@ public class MainController implements Initializable, EventListener
     {
         serverMessages.setCellFactory(param -> new MessageCell());
         clientMessages.setCellFactory(param -> new MessageCell());
+
+        serverMessages.setSelectionModel(new NoSelectionModel<>());
+        clientMessages.setSelectionModel(new NoSelectionModel<>());
+
+        serverMessages.setFocusTraversable(false);
+        clientMessages.setFocusTraversable(false);
 
         doSelectServer();
     }
@@ -221,6 +228,7 @@ public class MainController implements Initializable, EventListener
                     serverPort.setDisable(true);
                     serverStarted = true;
                     serverStartBtn.setText("Stop");
+                    serverStartBtn.setId("cancelBtn");
                     serverMessageBtn.setDisable(false);
                 });
             }
@@ -231,6 +239,7 @@ public class MainController implements Initializable, EventListener
                     serverPort.setDisable(false);
                     serverStarted = false;
                     serverStartBtn.setText("Start");
+                    serverStartBtn.setId("initiateBtn");
                     serverMessageBtn.setDisable(true);
                 });
             }
@@ -259,6 +268,7 @@ public class MainController implements Initializable, EventListener
                     clientPort.setDisable(true);
                     clientConnected = true;
                     clientConnectBtn.setText("Disconnect");
+                    clientConnectBtn.setId("cancelBtn");
                     clientMessageBtn.setDisable(false);
                 });
             }
@@ -270,6 +280,7 @@ public class MainController implements Initializable, EventListener
                     clientPort.setDisable(false);
                     clientConnected = false;
                     clientConnectBtn.setText("Connect");
+                    clientConnectBtn.setId("initiateBtn");
                     clientMessageBtn.setDisable(true);
                 });
             }

@@ -1,6 +1,7 @@
 package de.nils.conntest.gui;
 
 import de.nils.conntest.common.Const;
+import de.nils.conntest.gui.Components.ErrorAlert;
 import de.nils.conntest.gui.Components.MessageCell;
 import de.nils.conntest.gui.Components.MessageDialog;
 import de.nils.conntest.gui.Components.NoSelectionModel;
@@ -140,19 +141,12 @@ public class MainController implements Initializable, EventListener
         }
         else
         {
-            try
-            {
-                int port = Integer.parseInt(serverPort.getText());
+            String port = serverPort.getText();
 
-                EventQueue.getInstance().addEvent(
-                        new Event(EventType.START_SERVER,
-                                System.currentTimeMillis(),
-                                Map.of(Const.Event.SERVER_PORT_KEY, port)));
-            }
-            catch(NumberFormatException e)
-            {
-                log.error("User entered a not numeric port and tried to start a server", e);
-            }
+            EventQueue.getInstance().addEvent(
+                    new Event(EventType.START_SERVER,
+                            System.currentTimeMillis(),
+                            Map.of(Const.Event.SERVER_PORT_KEY, port)));
         }
     }
 
@@ -183,21 +177,14 @@ public class MainController implements Initializable, EventListener
         }
         else
         {
-            try
-            {
-                int port = Integer.parseInt(clientPort.getText());
-                String address = clientAddress.getText();
+            String port = clientPort.getText();
+            String address = clientAddress.getText();
 
-                EventQueue.getInstance().addEvent(
-                        new Event(EventType.START_CLIENT,
-                                System.currentTimeMillis(),
-                                Map.of(Const.Event.CLIENT_ADDRESS_KEY, address,
-                                        Const.Event.CLIENT_PORT_KEY, port)));
-            }
-            catch(Exception e)
-            {
-                log.error("User entered a not numeric port and tried to start a client", e);
-            }
+            EventQueue.getInstance().addEvent(
+                    new Event(EventType.START_CLIENT,
+                            System.currentTimeMillis(),
+                            Map.of(Const.Event.CLIENT_ADDRESS_KEY, address,
+                                    Const.Event.CLIENT_PORT_KEY, port)));
         }
     }
 
@@ -300,6 +287,16 @@ public class MainController implements Initializable, EventListener
                     	clientMessages.getItems().add(messages.poll());
                     }
                 });
+            }
+            case ERROR ->
+            {
+            	event.mustExist(Const.Event.ERROR_TEXT);
+            	
+            	Platform.runLater(() ->
+            	{
+            		ErrorAlert alert = new ErrorAlert(event.getData(Const.Event.ERROR_TEXT));
+            		alert.showAndWait();
+            	});
             }
             default ->
             {

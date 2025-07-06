@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -37,10 +38,10 @@ public class Connection
 
     public void reader()
     {
-        try(BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        try(BufferedInputStream in = new BufferedInputStream(socket.getInputStream());
                 socket)
         {
-            final char[] buf = new char[1024];
+            final byte[] buf = new byte[1024];
 
             while(connected)
             {
@@ -53,11 +54,11 @@ public class Connection
                     break;
                 }
 
-                String message = new String(buf, 0, read);
+                Message message = new Message(MessageType.RECEIVED, new String(buf, 0, read), System.currentTimeMillis(), this, Arrays.copyOfRange(buf, 0, read));
 
                 log.atTrace()
                     .setMessage("received <{}>")
-                    .addArgument(() -> message)
+                    .addArgument(() -> message.message())
                     .log();
 
                 EventQueue.getInstance().addEvent(

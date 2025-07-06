@@ -65,16 +65,27 @@ public class ConnectionService implements EventListener
                 
                 if(model.getClientService().isClientRunning())
                 {
-                	model.getClientMessagesRepo().create(new Message(MessageType.INFORMATION, "Connected to: <" + event.getData(Const.Event.CONNECTION_KEY).toString() + ">", System.currentTimeMillis()));
+                	model.getClientMessagesRepo().create(
+                			new Message(MessageType.INFORMATION,
+                					"Connected to: <" + event.getData(Const.Event.CONNECTION_KEY).toString() + ">", System.currentTimeMillis(),
+                					null, null));
                     
-                    EventQueue.getInstance().addEvent(new Event(EventType.CLIENT_MESSAGE_RECEIVED, System.currentTimeMillis(), Map.of(Const.Event.ALL_MESSAGES_KEY, model.getClientMessagesRepo().getAll())));
+                    EventQueue.getInstance().addEvent(
+                    		new Event(EventType.CLIENT_MESSAGE_RECEIVED,
+                    				System.currentTimeMillis(), Map.of(Const.Event.ALL_MESSAGES_KEY, model.getClientMessagesRepo().getAll())));
                 }
                 
                 if(model.getServerService().isServerRunning())
                 {
-                	model.getServerMessagesRepo().create(new Message(MessageType.INFORMATION, "New Client: <" + event.getData(Const.Event.CONNECTION_KEY).toString() + ">", System.currentTimeMillis()));
+                	model.getServerMessagesRepo().create(
+                			new Message(MessageType.INFORMATION,
+                					"New Client: <" + event.getData(Const.Event.CONNECTION_KEY).toString() + ">", System.currentTimeMillis(),
+                					null, null));
                     
-                    EventQueue.getInstance().addEvent(new Event(EventType.SERVER_MESSAGE_RECEIVED, System.currentTimeMillis(), Map.of(Const.Event.ALL_MESSAGES_KEY, model.getServerMessagesRepo().getAll())));
+                    EventQueue.getInstance().addEvent(
+                    		new Event(EventType.SERVER_MESSAGE_RECEIVED,
+                    				System.currentTimeMillis(),
+                    				Map.of(Const.Event.ALL_MESSAGES_KEY, model.getServerMessagesRepo().getAll())));
                 }
             }
             case CONNECTION_LOST ->
@@ -90,9 +101,15 @@ public class ConnectionService implements EventListener
                 
                 if(model.getServerService().isServerRunning())
                 {
-                	model.getServerMessagesRepo().create(new Message(MessageType.INFORMATION, "Disconnected Client: <" + event.getData(Const.Event.CONNECTION_KEY).toString() + ">", System.currentTimeMillis()));
+                	model.getServerMessagesRepo().create(
+                			new Message(MessageType.INFORMATION,
+                					"Disconnected Client: <" + event.getData(Const.Event.CONNECTION_KEY).toString() + ">",
+                					System.currentTimeMillis(), null, null));
                     
-                    EventQueue.getInstance().addEvent(new Event(EventType.SERVER_MESSAGE_RECEIVED, System.currentTimeMillis(), Map.of(Const.Event.ALL_MESSAGES_KEY, model.getServerMessagesRepo().getAll())));
+                    EventQueue.getInstance().addEvent(
+                    		new Event(EventType.SERVER_MESSAGE_RECEIVED,
+                    				System.currentTimeMillis(),
+                    				Map.of(Const.Event.ALL_MESSAGES_KEY, model.getServerMessagesRepo().getAll())));
                 }
             }
             case CONNECTION_RECEIVED_MESSAGE ->
@@ -101,10 +118,7 @@ public class ConnectionService implements EventListener
 
                 if(model.getServerService().isServerRunning())
                 {
-                    model.getServerMessagesRepo().create(
-                            new Message(MessageType.RECEIVED,
-                                    event.getData(Const.Event.MESSAGE_KEY),
-                                    System.currentTimeMillis()));
+                    model.getServerMessagesRepo().create(event.getData(Const.Event.MESSAGE_KEY));
 
                     EventQueue.getInstance().addEvent(
                             new Event(EventType.SERVER_MESSAGE_RECEIVED,
@@ -113,10 +127,7 @@ public class ConnectionService implements EventListener
                 }
                 else
                 {
-                	model.getClientMessagesRepo().create(
-                            new Message(MessageType.RECEIVED,
-                                    event.getData(Const.Event.MESSAGE_KEY),
-                                    System.currentTimeMillis()));
+                	model.getClientMessagesRepo().create(event.getData(Const.Event.MESSAGE_KEY));
 
                     EventQueue.getInstance().addEvent(
                             new Event(EventType.CLIENT_MESSAGE_RECEIVED,

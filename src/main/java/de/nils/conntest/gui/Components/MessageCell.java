@@ -3,6 +3,7 @@ package de.nils.conntest.gui.Components;
 import de.nils.conntest.model.communication.Message;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 
@@ -25,10 +26,6 @@ public class MessageCell extends ListCell<Message>
         }
         else
         {
-
-
-
-
             switch(message.messageType())
             {
                 case RECEIVED ->
@@ -36,7 +33,8 @@ public class MessageCell extends ListCell<Message>
                     HBox hBox = new HBox();
                     Label messageBox = new Label();
 
-                    messageBox.setText("> " + message.message());
+                    messageBox.setText("-> " + message.message());
+                    messageBox.setTooltip(new Tooltip("Source: " + message.source() + System.lineSeparator() + "Type: " + message.messageType()));
 
                     hBox.getChildren().add(messageBox);
                     setGraphic(hBox);
@@ -46,7 +44,8 @@ public class MessageCell extends ListCell<Message>
                     HBox hBox = new HBox();
                     Label messageBox = new Label();
 
-                    messageBox.setText("< " + message.message());
+                    messageBox.setText("<- " + message.message());
+                    messageBox.setTooltip(new Tooltip("Source: " + message.source() + System.lineSeparator() + "Type: " + message.messageType()));
 
                     hBox.getChildren().add(messageBox);
                     setGraphic(hBox);
@@ -62,7 +61,6 @@ public class MessageCell extends ListCell<Message>
             }
 
             setText(null);
-
         }
     }
 }

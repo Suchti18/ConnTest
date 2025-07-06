@@ -1,7 +1,9 @@
 package de.nils.conntest.model.services;
 
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -32,9 +34,29 @@ public class ClientService implements EventListener
     
     public void startClient(String address, int port)
     {
-        try
+    	if(port <= 0 || port > Short.MAX_VALUE)
         {
-            if(clientSocket == null && clientConn == null && !model.getServerService().isServerRunning())
+        	EventQueue.getInstance().addEvent(
+        			new Event(EventType.ERROR,
+        					System.currentTimeMillis(),
+        					Map.of(Const.Event.ERROR_TEXT, "Port is out of range")));
+        	
+        	return;
+        }
+    	
+    	if(model.getServerService().isServerRunning())
+    	{
+    		EventQueue.getInstance().addEvent(
+        			new Event(EventType.ERROR,
+        					System.currentTimeMillis(),
+        					Map.of(Const.Event.ERROR_TEXT, "Cant start client while a server is running")));
+    		
+    		return;
+    	}
+    	
+    	try
+        {
+            if(clientSocket == null && clientConn == null)
             {
                 clientSocket = new Socket(address, port);
                 clientConn = new Connection(clientSocket);
@@ -45,6 +67,21 @@ public class ClientService implements EventListener
         catch (IOException e)
         {
             log.error("Error while starting client. Dest: <{}:{}>", address, port, e);
+            
+            if(e instanceof ConnectException)
+			{
+            	EventQueue.getInstance().addEvent(
+            			new Event(EventType.ERROR,
+            					System.currentTimeMillis(),
+            					Map.of(Const.Event.ERROR_TEXT, "Connection refused: " + address + ":" + port)));
+			}
+            else if(e instanceof UnknownHostException)
+            {
+            	EventQueue.getInstance().addEvent(
+            			new Event(EventType.ERROR,
+            					System.currentTimeMillis(),
+            					Map.of(Const.Event.ERROR_TEXT, "Unknown host: " + address)));
+            }
         }
     }
 
@@ -52,7 +89,7 @@ public class ClientService implements EventListener
     {
     	if(clientSocket != null && clientConn != null)
         {
-    		model.getClientMessagesRepo().create(new Message(MessageType.INFORMATION, "Disconnected from: <" + clientConn + ">", System.currentTimeMillis()));
+    		model.getClientMessagesRepo().create(new Message(MessageType.INFORMATION, "Disconnected from: <" + clientConn + ">", System.currentTimeMillis(), null, null));
             
             EventQueue.getInstance().addEvent(new Event(EventType.CLIENT_MESSAGE_RECEIVED, System.currentTimeMillis(), Map.of(Const.Event.ALL_MESSAGES_KEY, model.getClientMessagesRepo().getAll())));
     		
@@ -79,8 +116,18 @@ public class ClientService implements EventListener
                 event.mustExist(Const.Event.CLIENT_ADDRESS_KEY);
                 event.mustExist(Const.Event.CLIENT_PORT_KEY);
 
-                startClient(event.getData(Const.Event.CLIENT_ADDRESS_KEY),
-                        event.getData(Const.Event.CLIENT_PORT_KEY));
+                try
+                {
+                	startClient(event.getData(Const.Event.CLIENT_ADDRESS_KEY),
+                			Integer.parseInt(event.getData(Const.Event.CLIENT_PORT_KEY)));
+                }
+                catch(NumberFormatException e)
+                {
+                	EventQueue.getInstance().addEvent(
+                			new Event(EventType.ERROR,
+                					System.currentTimeMillis(),
+                					Map.of(Const.Event.ERROR_TEXT, "Port is not parsable")));
+                }
             }
             case STOP_CLIENT ->
             {
@@ -90,7 +137,7 @@ public class ClientService implements EventListener
             {
             	event.mustExist(Const.Event.MESSAGE_KEY);
 
-                model.getConnectionService().sendClientMessage(new Message(MessageType.SENT, event.getData(Const.Event.MESSAGE_KEY), System.currentTimeMillis()));
+                model.getConnectionService().sendClientMessage(new Message(MessageType.SENT, event.getData(Const.Event.MESSAGE_KEY), System.currentTimeMillis(), clientConn, ((String) event.getData(Const.Event.MESSAGE_KEY)).getBytes()));
             }
             default ->
             {

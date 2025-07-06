@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.net.BindException;
 import java.util.Map;
 
 public class ServerService implements EventListener
@@ -30,9 +31,24 @@ public class ServerService implements EventListener
 
     public void startServer(int port)
     {
-        if(serverThread != null && serverThread.isAlive() && !model.getClientService().isClientRunning())
+        if(port <= 0 || port > Short.MAX_VALUE)
         {
-            return;
+        	EventQueue.getInstance().addEvent(
+        			new Event(EventType.ERROR,
+        					System.currentTimeMillis(),
+        					Map.of(Const.Event.ERROR_TEXT, "Port is out of range")));
+        	
+        	return;
+        }
+    	
+    	if((serverThread != null && serverThread.isAlive()) || model.getClientService().isClientRunning())
+        {
+    		EventQueue.getInstance().addEvent(
+        			new Event(EventType.ERROR,
+        					System.currentTimeMillis(),
+        					Map.of(Const.Event.ERROR_TEXT, "If you have a client or server up and running stop it before starting a new one")));
+    		
+    		return;
         }
 
         try
@@ -43,13 +59,21 @@ public class ServerService implements EventListener
 
             EventQueue.getInstance().addEvent(new Event(EventType.SERVER_STARTED, System.currentTimeMillis(), null));
             
-            model.getServerMessagesRepo().create(new Message(MessageType.INFORMATION, "Server started on port <" + port + ">", System.currentTimeMillis()));
+            model.getServerMessagesRepo().create(new Message(MessageType.INFORMATION, "Server started on port <" + port + ">", System.currentTimeMillis(), null, null));
             
             EventQueue.getInstance().addEvent(new Event(EventType.SERVER_MESSAGE_RECEIVED, System.currentTimeMillis(), Map.of(Const.Event.ALL_MESSAGES_KEY, model.getServerMessagesRepo().getAll())));
         }
         catch (IOException e)
         {
             log.error("Error while starting server", e);
+            
+            if(e instanceof BindException)
+			{
+            	EventQueue.getInstance().addEvent(
+            			new Event(EventType.ERROR,
+            					System.currentTimeMillis(),
+            					Map.of(Const.Event.ERROR_TEXT, "Port is already in use")));
+			}
         }
     }
 
@@ -61,7 +85,7 @@ public class ServerService implements EventListener
             serverThread.interrupt();
             EventQueue.getInstance().addEvent(new Event(EventType.SERVER_STOPPED, System.currentTimeMillis(), null));
             
-            model.getServerMessagesRepo().create(new Message(MessageType.INFORMATION, "Server stopped", System.currentTimeMillis()));
+            model.getServerMessagesRepo().create(new Message(MessageType.INFORMATION, "Server stopped", System.currentTimeMillis(), null, null));
             
             EventQueue.getInstance().addEvent(new Event(EventType.SERVER_MESSAGE_RECEIVED, System.currentTimeMillis(), Map.of(Const.Event.ALL_MESSAGES_KEY, model.getServerMessagesRepo().getAll())));
     	}
@@ -83,8 +107,18 @@ public class ServerService implements EventListener
             case START_SERVER ->
             {
                 event.mustExist(Const.Event.SERVER_PORT_KEY);
-
-                startServer(event.getData(Const.Event.SERVER_PORT_KEY));
+                
+                try
+                {
+                	startServer(Integer.parseInt(event.getData(Const.Event.SERVER_PORT_KEY)));
+                }
+                catch(NumberFormatException e)
+                {
+                	EventQueue.getInstance().addEvent(
+                			new Event(EventType.ERROR,
+                					System.currentTimeMillis(),
+                					Map.of(Const.Event.ERROR_TEXT, "Port is not parsable")));
+                }
             }
             case STOP_SERVER ->
             {
@@ -94,7 +128,10 @@ public class ServerService implements EventListener
             {
                 event.mustExist(Const.Event.MESSAGE_KEY);
 
-                model.getConnectionService().sendServerMessage(new Message(MessageType.SENT, event.getData(Const.Event.MESSAGE_KEY), System.currentTimeMillis()));
+                model.getConnectionService().sendServerMessage(
+                		new Message(MessageType.SENT,
+                				event.getData(Const.Event.MESSAGE_KEY),
+                				System.currentTimeMillis(), null, null));
             }
             default ->
             {

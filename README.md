@@ -10,43 +10,50 @@
 
 ---
 
-## Features
+## ✨ Features
 
-- Run as **server** (listens on a configurable port)
-- Run as **client** (connects to IP and port)
+- Operates as a **TCP server** (configurable port)
+- Operates as a **TCP client** (connect to IP + port)
 - Logs all **incoming** and **outgoing** messages
-- **Text-based chat interface** for manual communication
-- Ideal for debugging and testing custom network applications
+- **Simple text-based chat interface**
+- Lightweight and easy to use
+- Great for testing socket-based applications
 
 ---
 
-## Purpose
+## 🎯 Use Cases
 
-**ConnTest** is designed to test the network functionality of other programs, especially to verify whether:
-
-- Connections are established correctly
-- Messages are sent and received as expected
-- The communication protocol behaves correctly
+ConnTest helps verify and debug:
+- Whether a connection can be established successfully
+- If messages are sent and received as expected
+- The behavior of custom communication protocols
 
 ---
 
-## Usage
+## 🚀 Getting Started
+
+1. Download the latest release `.zip` file
+2. Extract and run `ConnTest.exe`
 
 ### Server Mode
-
-Enter a port number into the text field and press the **Start** button.
+- Enter a port number
+- Click **Start** to begin listening
 
 ### Client Mode
+- Enter the server **IP address** and **port**
+- Click **Connect** to establish connection
 
-Enter the target IP address and port into the corresponding fields and press **Connect**.
+> ⚠️ **Note**:  
+> Closing the application window (X) will **not** terminate the app.  
+> You must right-click the **tray icon** and choose **Exit** to quit the application completely.
 
 ---
 
 ## 🛠️ Building
 
 ### Requirements
-
-- Java 21 or higher
+- Java **21** or later
+- Git
 
 ```bash
 git clone https://github.com/Suchti18/ConnTest.git
